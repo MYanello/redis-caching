@@ -16,7 +16,7 @@ install-reqs: venv-install
 	. venv/bin/activate; pip install -r $(REQUIREMENTS)
 
 run-python: install-reqs
-	. venv/bin/activate; python3 $(PYTHON_PROGRAM)
+	. venv/bin/activate; python3 $(PYTHON_PROGRAM) --pw 'rescale'
 
 docker-down:
 	docker compose down
