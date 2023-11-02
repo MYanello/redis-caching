@@ -11,19 +11,17 @@ docker-up:
 
 venv-install: docker-up
 	python3 -m venv $(VENV_NAME)
-	. $(VENV_NAME)/bin/activate
 
 install-reqs: venv-install
-	pip install -r $(REQUIREMENTS)
+	. venv/bin/activate; pip install -r $(REQUIREMENTS)
 
 run-python: install-reqs
-	python $(PYTHON_PROGRAM)
+	. venv/bin/activate; python3 $(PYTHON_PROGRAM)
 
 docker-down:
 	docker compose down
 
 clean-venv:
-	deactivate
 	rm -rf $(VENV_NAME)
 
 clean: clean-venv docker-down
