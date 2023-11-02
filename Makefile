@@ -11,7 +11,7 @@ docker-up:
 
 venv-install: docker-up
 	python3 -m venv $(VENV_NAME)
-	source $(VENV_NAME)/bin/activate
+	. $(VENV_NAME)/bin/activate
 
 install-reqs: venv-install
 	pip install -r $(REQUIREMENTS)
