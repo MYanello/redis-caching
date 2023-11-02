@@ -4,12 +4,15 @@ PYTHON_PROGRAM = app.py
 
 REQUIREMENTS = requirements.txt
 
-.PHONY: docker-up venv-install run-python
+#.PHONY: docker-up venv-install run-python
 
 docker-up:
 	docker compose up -d
 
-venv-install: docker-up
+test-data: docker-up run-python
+	
+
+venv-install:
 	python3 -m venv $(VENV_NAME)
 
 install-reqs: venv-install
