@@ -10,7 +10,7 @@ parser = argparse.ArgumentParser(description='Redis caching proxy')
 parser.add_argument('--redis_host', type=str, help='Hostname or IP of backing Redis', default='127.0.0.1')
 parser.add_argument('--redis_port', type=str, help='Port of backing Redis', default='6379')
 parser.add_argument('--proxy_host', type=str, help='The listening IP of the proxy', default='0.0.0.0')
-parser.add_argument('--proxy_port', type=int, help='The listening port of the proxy', default='9209')
+parser.add_argument('--proxy_port', type=int, help='The listening port of the proxy', default='9999')
 parser.add_argument('-t', '--ttl', type=int, help='Cache TTL in seconds', default=10)
 parser.add_argument('-k', '--size', type=int, help='Number of items to cache', default=10)
 parser.add_argument('--pw', type=str, nargs='?')
@@ -30,9 +30,10 @@ def connect_backing(args): # connect to the redis instance
     redis_test_conn(r)
     return(r)
 
-def cache_setup(args):
-    cached_data = TTLCache(maxsize = args.size, ttl = args.ttl)
-    #print(f"TTL = {args.ttl} and Size = {args.size}")
+def cache_setup(size, ttl):
+    cached_data = TTLCache(maxsize = size, ttl = ttl)
+    print(f"TTL = {ttl} and Size = {size}")
+    print(cached_data)
     #print('Created TTL LRU cache')
     return(cached_data)
 
@@ -48,41 +49,41 @@ def redis_test_conn(r):
         print(f"Failed to connect to Redis instance: {e}")
         sys.exit(1)
 
-def redis_data_gen(r, size): # create some test data that just squares the key and fills the cache
-    for i in range(size-1):
+def redis_data_gen(r, size):
+    for i in range(size):
         r.set(i, i**2)
     print("Added test data to Redis instance")
 
 def test_ttl(r, args): #ensure key values are getting removed after ttl is up
-    ttl_param(1)
     orig_ttl = args.ttl
+    test_ttl = 1
+    cached_data = cache_setup(args.size, test_ttl)
     redis_data_gen(r, args.size)
-    first_caching = get_data('1') #first time to cache the value
-    second_caching = get_data('1') #second time to verify we pull value from cache
+    first_caching = get_data('3') #first time to cache the value
+    print(first_caching)
+    second_caching = get_data('3') #second time to verify we pull value from cache
+    print(cached_data)
     print(second_caching)
-    time.sleep(args.ttl+1)
-    third_caching = get_data('1') #third time to verify the value is no longer pulled from cache
+    time.sleep(test_ttl+5)
+    third_caching = get_data('3') #third time to verify the value is no longer pulled from cache
     print(third_caching)
+    print(cached_data)
     if third_caching['source'] == 'redis' and second_caching['source'] == 'cache':
-        print(f"Cached value removed after {args.ttl} seconds.")
+        print(f"Cached value removed after {test_ttl} seconds.")
     else:
         print(f"Cached value not removed after TTL")
-    ttl_param(orig_ttl)
+    cached_data = cache_setup(args.size, orig_ttl)
 
 def test_lru(r, args):
     orig_size = args.size
-    test_size = 3
-    size_param(test_size)
-    redis_data_gen(r, test_size-1)
-    for i in range(test_size):
-        
-        print(cached_data[i])
-    size_param(orig_size)
-    return
+    args.size = 2
+    cache_param(600, args.size)
+    redis_data_gen(r, args.size)
+    print(r.get('1'))
+    cache_param(orig_size, args.ttl)
 
 def clean(r, cached_data):
     cached_data.cache_clear()
-    return
 
 app = FastAPI()
 @app.get('/get_data')
@@ -97,17 +98,18 @@ def get_data(key: int): #pull data from redis or cache if possible
         return ({'key': key, 'data':redis_value.decode('utf-8'), 'source': 'redis'})
     except:
         return ({'error': 'key not found in redis'})
-@app.put('/cache_params/size')
-def size_param(size: int):
-    args.size = size
+
+@app.put('/cache_params') #this wipes the current cache, provide cache update function instead if time permits
+def cache_param(size: int = None, ttl: int = None):
+    if size:
+        if ttl:
+            args.size, args.ttl = size, ttl
+        else:
+            args.size = size
+    if ttl and not size:
+        args.ttl = ttl
     cache_setup(args)
-    return
-@app.put('/cache_params/ttl')
-def ttl_param(ttl: int): 
-    args.ttl = ttl
-    cache_setup(args)
-    return
-    
+
 
 @app.middleware("http") # track the speed of our calls
 async def add_process_time_header(request, call_next):
@@ -119,8 +121,8 @@ async def add_process_time_header(request, call_next):
 
 if __name__ == '__main__':
     r = connect_backing(args)
-    cached_data = cache_setup(args)
+    cached_data = cache_setup(args.size, args.ttl)
     if args.test == True:
-        #test_ttl(r, args)
-        test_lru(r, args)
-    uvicorn.run(app, host=args.proxy_host, port=args.proxy_port)
+        test_ttl(r, args)
+        #test_lru(r, args)
+    #uvicorn.run(app, host=args.proxy_host, port=args.proxy_port)

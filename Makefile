@@ -10,13 +10,13 @@ install-reqs: venv-install
 	. venv/bin/activate; pip install -r requirements.txt
 
 test: install-reqs docker-up
-	. venv/bin/activate; python3 $(PYTHON_PROGRAM) --pw 'rescale' --test
+	. venv/bin/activate; pytest
 
 docker-down:
 	docker compose down
 
 run-python: install-reqs
-	. venv/bin/activate; python3 $(PYTHON_PROGRAM)
+	. venv/bin/activate; python3 $(PYTHON_PROGRAM) --pw 'rescale'
 
 clean-venv:
 	rm -rf $(VENV_NAME)
