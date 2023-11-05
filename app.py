@@ -119,10 +119,13 @@ async def add_process_time_header(request, call_next):
     response.headers["X-Process-Time"] = str(f"{process_time:0.4f} sec")
     return response
 
+def launch_server(host, port):
+    uvicorn.run(app, host=host, port=port)
+        
 if __name__ == '__main__':
     r = connect_backing(args)
     cached_data = cache_setup(args.size, args.ttl)
     if args.test == True:
         test_ttl(r, args)
         #test_lru(r, args)
-    #uvicorn.run(app, host=args.proxy_host, port=args.proxy_port)
+    launch_server(args.proxy_host, args.proxy_port)
