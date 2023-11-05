@@ -27,7 +27,7 @@ def connect_backing(args): # connect to the redis instance
     except redis.exceptions.ConnectionError as e:
         print(f"Redis connection error: {e}")
         sys.exit(1)
-    redis_test_conn(r)
+    #redis_test_conn(r)
     return(r)
 
 def cache_setup(size, ttl):
