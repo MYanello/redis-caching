@@ -13,19 +13,21 @@ parser.add_argument('--proxy_host', type=str, help='The listening IP of the prox
 parser.add_argument('--proxy_port', type=int, help='The listening port of the proxy', default='9999')
 parser.add_argument('-t', '--ttl', type=int, help='Cache TTL in seconds', default=10)
 parser.add_argument('-k', '--size', type=int, help='Number of items to cache', default=10)
-parser.add_argument('--pw', type=str, nargs='?')
+parser.add_argument('--password', type=str, nargs='?')
 parser.add_argument('-T', '--test', action='store_true', help='Run tests')
 args = parser.parse_args()
 
 
 def connect_backing(args): # connect to the redis instance
     try:
-        r = redis.Redis(host=args.redis_host, port=args.redis_port, db=0, password=args.pw)
+        r = redis.Redis(host=args.redis_host, port=args.redis_port, db=0, password=args.password)
     except redis.exceptions.AuthenticationError as e: 
         print(f"Redis password required: {e}")
+        return(e)
         sys.exit(1)
     except redis.exceptions.ConnectionError as e:
         print(f"Redis connection error: {e}")
+        return(e)
         sys.exit(1)
     #redis_test_conn(r)
     return(r)
