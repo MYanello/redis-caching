@@ -9,13 +9,13 @@ venv-install:
 install: venv-install
 	. venv/bin/activate; pip install -r requirements.txt
 
-test: install-reqs docker-up
+test: install docker-up
 	. venv/bin/activate; PYTHONPATH=. pytest
 
 docker-down:
 	docker compose down
 
-run-proxy: install-reqs
+run-proxy: install
 	. venv/bin/activate; python3 $(PYTHON_PROGRAM)
 
 clean-venv:

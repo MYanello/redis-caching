@@ -5,7 +5,7 @@ import argparse
 
 @pytest.mark.parametrize("host, port, pw, exception_type", [
     ("127.0.0.1", "6379", "rescale", None),
-    ("1.1.1.1", "6379", "rescale", redis.exceptions.ConnectionError),
+    ("203.0.113.1", "6379", "rescale", redis.exceptions.TimeoutError),
     ("127.0.0.1", "80", "rescale", redis.exceptions.ConnectionError),
     ("127.0.0.1", "6379", "bad_pw", redis.exceptions.AuthenticationError),
     ("127.0.0.1", "6379", "", redis.exceptions.AuthenticationError)
@@ -17,8 +17,7 @@ def test_connect_backing(host, port, pw, exception_type):
         try:
             app.connect_backing(args)
         except Exception as e:
-            pytest.fail(f"Unexpected exception raised: {e}")
+            pytest.fail(f"Unexpected exception raised: {e} Is Redis running?")
     else:
-        with pytest.raises(exception_type) as excinfo:
+        with pytest.raises(exception_type):
             app.connect_backing(args)
-        #assert exception_type in str(excinfo.value)

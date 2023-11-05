@@ -10,7 +10,7 @@ parser = argparse.ArgumentParser(description='Redis caching proxy')
 parser.add_argument('--redis_host', type=str, help='Hostname or IP of backing Redis', default='127.0.0.1')
 parser.add_argument('--redis_port', type=str, help='Port of backing Redis', default='6379')
 parser.add_argument('--proxy_host', type=str, help='The listening IP of the proxy', default='0.0.0.0')
-parser.add_argument('--proxy_port', type=int, help='The listening port of the proxy', default='9999')
+parser.add_argument('--proxy_port', type=str, help='The listening port of the proxy', default='9999')
 parser.add_argument('-t', '--ttl', type=int, help='Cache TTL in seconds', default=10)
 parser.add_argument('-k', '--size', type=int, help='Number of items to cache', default=10)
 parser.add_argument('--password', type=str, nargs='?')
@@ -20,12 +20,12 @@ args = parser.parse_args()
 
 def connect_backing(args): # connect to the redis instance
     try:
-        r = redis.Redis(host=args.redis_host, port=args.redis_port, db=0, password=args.password)
+        r = redis.Redis(host=args.redis_host, port=args.redis_port, db=0, password=args.password, socket_timeout=2)
         r.ping()
     except redis.exceptions.AuthenticationError as e: 
         print(f"Redis password required: {e}")
         raise
-    except redis.exceptions.ConnectionError as e:
+    except redis.exceptions.ConnectionError or redis.exceptions.TimeoutError as e:
         print(f"Redis connection error: {e}")
         raise
     return(r)
