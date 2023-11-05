@@ -6,7 +6,7 @@ docker-up:
 venv-install:
 	python3 -m venv venv
 
-install-reqs: venv-install
+install: venv-install
 	. venv/bin/activate; pip install -r requirements.txt
 
 test: install-reqs docker-up
@@ -19,6 +19,6 @@ run-proxy: install-reqs
 	. venv/bin/activate; python3 $(PYTHON_PROGRAM)
 
 clean-venv:
-	rm -rf $(VENV_NAME)
+	rm -rf venv
 
 clean: clean-venv docker-down

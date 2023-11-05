@@ -13,9 +13,12 @@ import argparse
 
 def test_connect_backing(host, port, pw, exception_type):
     args = argparse.Namespace(redis_host = host, redis_port = port, password = pw)
-    assert app.connect_backing(args) == exception_type
-    # try:
-    #     connect_backing(args)
-    # except Exception as e:
-    #     print(e)
-    #     assert isinstance(e, exception_type)
+    if exception_type is None:
+        try:
+            app.connect_backing(args)
+        except Exception as e:
+            pytest.fail(f"Unexpected exception raised: {e}")
+    else:
+        with pytest.raises(exception_type) as excinfo:
+            app.connect_backing(args)
+        #assert exception_type in str(excinfo.value)

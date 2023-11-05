@@ -21,15 +21,13 @@ args = parser.parse_args()
 def connect_backing(args): # connect to the redis instance
     try:
         r = redis.Redis(host=args.redis_host, port=args.redis_port, db=0, password=args.password)
+        r.ping()
     except redis.exceptions.AuthenticationError as e: 
         print(f"Redis password required: {e}")
-        return(e)
-        sys.exit(1)
+        raise
     except redis.exceptions.ConnectionError as e:
         print(f"Redis connection error: {e}")
-        return(e)
-        sys.exit(1)
-    #redis_test_conn(r)
+        raise
     return(r)
 
 def cache_setup(size, ttl):
