@@ -10,11 +10,10 @@ def setup_cached_data():
 
 # Mock Redis using a pytest fixture
 @pytest.fixture
-def mock_redis(monkeypatch):
+def mock_redis(mocker):
     def mock_redis_get(key):
         return b'Redis Data'
-
-    monkeypatch.setattr('redis.Redis.get', mock_redis_get)
+    mocker.patch('redis.Redis.get', side_effect=mock_redis_get)
 
 # Test cases
 def test_get_data_from_cache(setup_cached_data):
