@@ -17,7 +17,6 @@ parser.add_argument('-T', '--test', action='store_true', help='Run tests')
 args = parser.parse_args()
 cached_data = TTLCache(maxsize = args.size, ttl = args.ttl)
 
-
 def connect_backing(args): # connect to the redis instance
     try:
         r = redis.Redis(host=args.redis_host, port=args.redis_port, db=0, password=args.password, socket_timeout=1)
@@ -78,7 +77,6 @@ def clean(r, cached_data):
 app = FastAPI()
 @app.get('/get_data')
 def get_data(key): #pull data from redis or cache if possible
-    r = connect_backing(args)
     print(key)
     if not key:
         return ({'error': 'no key parameter'})
@@ -91,7 +89,6 @@ def get_data(key): #pull data from redis or cache if possible
     except:
         return ({'error': 'key not found in redis'})
 
-def data_pull(r, cached_data, key):
 
 # @app.put('/cache_params') #this wipes the current cache, provide cache update function instead if time permits
 # def cache_param(size: int = None, ttl: int = None):

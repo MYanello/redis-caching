@@ -1,12 +1,12 @@
 from src import app
 import pytest
 
-# A fixture to set up and tear down test data
+# A fixture to set up and tear down test data cache
 @pytest.fixture
 def setup_cached_data():
-    cached_data = {'cached_key': b'Cached Data'}P
-    yield cached_data
-    cached_data.clear()
+    app.cached_data = {'cached_key': b'Cached Data'}
+    yield app.cached_data
+    app.cached_data.clear()
 
 # Mock Redis using a pytest fixture
 @pytest.fixture
