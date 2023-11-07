@@ -77,7 +77,8 @@ def clean(r, cached_data):
 
 app = FastAPI()
 @app.get('/get_data')
-def get_data(key, r): #pull data from redis or cache if possible
+def get_data(key): #pull data from redis or cache if possible
+    r = connect_backing(args)
     print(key)
     if not key:
         return ({'error': 'no key parameter'})
