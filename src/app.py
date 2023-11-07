@@ -42,6 +42,7 @@ def redis_data_gen(r, size):
     for i in range(size):
         r.set(i, i**2)
     print("Added test data to Redis instance")
+    print(r.get('10'))
 
 def test_ttl(r, args): #ensure key values are getting removed after ttl is up
     orig_ttl = args.ttl
@@ -76,7 +77,8 @@ def clean(r, cached_data):
 
 app = FastAPI()
 @app.get('/get_data')
-def get_data(key: int): #pull data from redis or cache if possible
+def get_data(key, r): #pull data from redis or cache if possible
+    print(key)
     if not key:
         return ({'error': 'no key parameter'})
     if key in cached_data:
@@ -87,6 +89,8 @@ def get_data(key: int): #pull data from redis or cache if possible
         return ({'key': key, 'data':redis_value.decode('utf-8'), 'source': 'redis'})
     except:
         return ({'error': 'key not found in redis'})
+
+def data_pull(r, cached_data, key):
 
 # @app.put('/cache_params') #this wipes the current cache, provide cache update function instead if time permits
 # def cache_param(size: int = None, ttl: int = None):
