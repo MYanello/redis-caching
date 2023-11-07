@@ -7,14 +7,18 @@ For the actual caching proxy we use a Python Flask app to provide the HTTP endpo
 
 # How to run the proxy and tests
 To run the tests, you simply should run `make test`
-Otherwise for actual use, run `make install` then 
-`python app.py <args>``
+Otherwise for actual use, run :
+```
+make install 
+python src/app.py --password="test"
+```
 With optional arguments being:
+```
 --redis_host 
 --redis_port
 --ttl
 --host
---pw 
+```
 # Time spent
 ## Redis Backing Instance
 This took a minimal amount of time, <1 hour. I have no experience with Redis so a lot of the time was spent deciding between RedisStack, and Redis.

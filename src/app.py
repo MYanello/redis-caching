@@ -4,6 +4,7 @@ import sys
 import redis
 from cachetools import TTLCache
 import argparse
+import logging
 
 parser = argparse.ArgumentParser(description='Redis caching proxy')
 parser.add_argument('--redis_host', type=str, help='Hostname or IP of backing Redis', default='127.0.0.1')
@@ -17,14 +18,18 @@ parser.add_argument('-T', '--test', action='store_true', help='Run tests')
 args = parser.parse_args()
 cached_data = TTLCache(maxsize = args.size, ttl = args.ttl)
 
+logger = logging.getLogger(__name__)
 
-def connect_backing(args): # connect to the redis instance
+def connect_backing(args):
+    """Connect to the redis instance."""
+    logging.debug(f"Connecting to the Redis instance with args: {args}")
     try:
         r = redis.Redis(host=args.redis_host, port=args.redis_port, db=0, password=args.password, socket_timeout=1)
         r.ping()
     except redis.exceptions.AuthenticationError as e: 
-        print(f"Redis password required: {e}")
-        raise
+        # print(f"Redis password required: {e}")
+        # raise
+        logger.exception(f"logger - Redis password required: {e}")
     except redis.exceptions.ConnectionError or redis.exceptions.TimeoutError as e:
         print(f"Redis connection error: {e}")
         raise
@@ -91,7 +96,7 @@ def get_data(key): #pull data from redis or cache if possible
     except:
         return ({'error': 'key not found in redis'})
 
-def data_pull(r, cached_data, key):
+# def data_pull(r, cached_data, key):
 
 # @app.put('/cache_params') #this wipes the current cache, provide cache update function instead if time permits
 # def cache_param(size: int = None, ttl: int = None):
