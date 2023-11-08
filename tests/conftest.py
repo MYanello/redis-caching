@@ -26,10 +26,10 @@ import argparse
 # def proxy_start():
 #     server = app.launch_server('127.0.0.1', '9999')
 
-@pytest.fixture
-def setup_teardown():
-    args = argparse.Namespace(redis_host = '127.0.0.1', redis_port = '6379', password = 'rescale', size = 10, ttl = 1)
-    r = app.connect_backing(args)
-    app.redis_data_gen(r, 100)
-    yield
-    print('teardown')
+# @pytest.fixture
+# def setup_teardown():
+#     args = argparse.Namespace(redis_host = '127.0.0.1', redis_port = '6379', password = 'rescale', size = 10, ttl = 1)
+#     r = app.connect_backing(args)
+#     app.redis_data_gen(r, 100)
+#     yield
+#     print('teardown')
