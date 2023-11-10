@@ -1,35 +1,31 @@
-import sys
-import os
-from src import app
 import pytest
 import argparse
+import redis
+import sys
+from src import app
 
 #sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
-
-# @pytest.fixture
-# def redis_client(test_args):
-#     r = app.connect_backing(test_vargs)
-#     return(r)
-
-
-# @pytest.fixture
-# def data_gen():
-#     app.redis_data_gen(r, 10)
-
-# @pytest.fixture
-# def test_args(size, ttl):
-#     args = argparse.Namespace(redis_host = '127.0.0.1', redis_port = '6379', password = 'rescale', size = size, ttl = ttl)
-#     r = redis_client(args)
-#     return(args, r)
-
-# @pytest.fixture(scope="session")
-# def proxy_start():
-#     server = app.launch_server('127.0.0.1', '9999')
+sys.path.append("../src")
 
 @pytest.fixture
-def setup_teardown():
-    args = argparse.Namespace(redis_host = '127.0.0.1', redis_port = '6379', password = 'rescale', size = 10, ttl = 1)
-    r = app.connect_backing(args)
-    app.redis_data_gen(r, 100)
-    yield
-    print('teardown')
+def setup():
+    args = argparse.Namespace(redis_host = '127.0.0.1', redis_port = '6379', password = 'rescale', size = 1, ttl = 1)
+    application = app.redis_proxy(args)
+    yield application
+    application.clean()
+
+# A fixture to set up and tear down test data cache
+@pytest.fixture
+def mock_cached_data():
+    app.cached_data = {'cached_key': b'Cached Data'}
+    yield app.cached_data
+    app.cached_data.clear()
+
+@pytest.fixture
+def mock_redis(mocker):
+    def mock_redis_get(key):
+        if key == 'redis_key':
+            return b'Redis Data'
+        else:
+            return None
+    mocker.patch('redis.Redis.get', side_effect=mock_redis_get)
