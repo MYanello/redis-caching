@@ -2,19 +2,26 @@
 We use Docker to supply a redis backing instance for testing. This is defined using Docker Compose v2 (`docker compose` and not `docker-compose`).  
 For the actual caching proxy we use a Python Flask app to provide the HTTP endpoint, and the package cachetools to give the TTL and LRU capability.  
 
-
 # Big O
 
 # How to run the proxy and tests
-To run the tests, you simply should run `make test`
-Otherwise for actual use, run `make install` then 
-`python app.py <args>``
-With optional arguments being:
---redis_host 
---redis_port
---ttl
---host
---pw 
+To run the tests, you simply should run 
+```
+make test
+```
+Otherwise for actual use, run: 
+```
+make install 
+python app.py <args>
+```
+With optional arguments being:  
+--redis_host  
+--redis_port  
+--ttl time to cache items  
+--k max cache size  
+--proxy_host  
+--proxy_port  
+--password  
 # Time spent
 ## Redis Backing Instance
 This took a minimal amount of time, <1 hour. I have no experience with Redis so a lot of the time was spent deciding between RedisStack, and Redis.
@@ -35,9 +42,10 @@ provide:
 1. Launch the container
 2. Set up the venv
 3. Install Python packages
-4. Launch the Flask app with default args and testing arg
+4. Launch pytest
 5. Provide a way to launch the flask app normally
 
 ## Tests
-
+This was by far the most time spent on the project. I learnt Pytest and Pytest-mock for this testing. Some sources that I found useful:  
+- [Mocking](https://medium.com/@manuktiwary/mocking-in-pytest-910cbef5a4a9)
 # Requirements
