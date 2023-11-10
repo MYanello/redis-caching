@@ -6,17 +6,6 @@ import time
 import cachetools
 import logging
 
-# @pytest.fixture
-# def setup_cached_data():
-#     app.cached_data = {
-#         '0': b'Cached Data',
-#         '1': b'Cached Data',
-#         '2': b'Cached Data',
-#         '3': b'Cached Data',
-#         '4': b'Cached Data',
-#         '5': b'Cached Data'}
-#     yield app.cached_data
-#     app.cached_data.clear()
 @pytest.fixture
 def mock_redis(mocker):
     def mock_redis_get(key):

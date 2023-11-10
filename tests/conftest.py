@@ -1,11 +1,27 @@
 import pytest
 import argparse
 import sys
-import os
+import logging
+from src import app
 
-sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
+#sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
+sys.path.append("../src")
 
 @pytest.fixture
-def standard_args():
-    args = argparse.Namespace(redis_host = '127.0.0.1', redis_port = '6379', password = 'rescale', size = 5, ttl = 1)
-    yield args
+def setup():
+    args = argparse.Namespace(redis_host = '127.0.0.1', redis_port = '6379', password = 'rescale', size = 1, ttl = 1)
+    application = app.redis_proxy(args)
+    yield application
+    application.cached_data.clear()
+    application.clean()
+
+
+@pytest.fixture
+def mock_redis(mocker):
+    def mock_redis_get(key):
+        logging.info('test')
+        if key == 'redis_key':
+            return b'Redis Data'
+        else:
+            return None
+    mocker.patch.object(app.redis_proxy, 'get_data', side_effect=mock_redis_get)
