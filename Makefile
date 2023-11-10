@@ -3,10 +3,10 @@ PYTHON_PROGRAM = src/app.py
 docker-up:
 	docker compose up -d
 
-venv-install:
+venv:
 	python3 -m venv venv
 
-install: venv-install
+install: venv
 	. venv/bin/activate; pip install -r requirements.txt
 
 test: install docker-up
