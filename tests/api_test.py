@@ -23,3 +23,7 @@ def server():
 def test_api(server):
     response = requests.get('http://localhost:9999/get_data?key=5')
     assert response.json()['data'] == "25"
+    assert response.json()['source'] == "redis"
+    response2 = requests.get('http://localhost:9999/get_data?key=5')
+    assert response2.json()['data'] == "25"
+    assert response2.json()['source'] == "cache"
