@@ -93,10 +93,8 @@ class redis_proxy:
         return(self.cached_data)
     
     def launch_server(self):
+        #launch redis proxy server
         uvicorn.run(self.app, host=self.args.proxy_host, port=self.args.proxy_port)
-        # config = uvicorn.config(self.app, host=self.args.proxy_host, port=self.args.proxy_port)
-        # server = uvicorn.Server(config=config)
-        # await server.serve()
 
     def clean(self):
         #empty redis and cache, use with caution
