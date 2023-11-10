@@ -2,30 +2,32 @@
 This program is centered around the redis_proxy class. We take command line arguments to define the behavior of the proxy and the backing instance of Redis. The class supplies some basic functionality:
 - Initialization sets up the cache, connects to Redis, and initializes FastAPI with its routes.
 - Get_data provides cache retrieval of keys if possible, and Redis retrieval if not.  
-- Miscellaneous other methods useful for testing the class.
 - Cachetools provides the LRU and TTL functionality.
 - FastAPI to respond to API calls
 - Uvicorn webserver
+- Miscellaneous other methods useful for testing the class.
 
 For testing we implement the following tools:
 - Docker supplies a redis backing instance for testing. This is defined using Docker Compose v2 (`docker compose` and not `docker-compose`).  
 - Pytest and Pytest-mock libraries for writing fixtures and tests
 
 # Time Complexity
-Get from Redis - O(1), Redis dictionary lookups are also constant time  
+Get from Redis - O(1), Redis dictionary lookups are in constant time  
 Get from cache - O(1), Python dictionary lookups are constant time  
 Add to cache - 0(1), Python dictionary appends in constant time  
-Delete from cache (ttl) - O(1), this uses pop, constant time  
-Delete from cache (size) - O(1), this uses del, constant time  
-[Source for cachetools implementation](https://cachetools.readthedocs.io/en/latest/#cache-implementations)
+Delete from cache (ttl) - O(1), this uses del, constant time  
+Delete from cache (size) - O(1), this uses pop, constant time  
+[Source for Cachetools implementation](https://cachetools.readthedocs.io/en/latest/#cache-implementations)  
+[Source for Python ops speed](https://www.geeksforgeeks.org/complexity-cheat-sheet-for-python-operations/#)
 # How to run the proxy and tests
-To run the tests, you simply should run 
+To run the tests, simply run 
 ```
 make test
 ```
-Otherwise for actual use, run: 
+Otherwise for actual usage, run: 
 ```
 make install 
+source venv/bin/activate
 python src/app.py <args>
 ```
 With optional arguments being:  
@@ -64,6 +66,6 @@ Another part of testing that took a fair bit of time to implement was the end-to
 # Requirements
 All of the mandatory requirements were implemented successfully. 
 ## Redis Serialization Protocol
-This was toyed with a bit in the aioredis branch, but was scrapped in favor of spending more time writing tests.
+This was toyed with a bit in the aioredis branch, but was scrapped in favor of spending more time writing tests and trying to implement the concurrency.
 ## Concurrency
-This was intended to be implemented initially, hence the choice of FastAPI over Flask. Time constraints prevented me from successfully getting this out the door though.
+This was intended to be implemented initially, hence the choice of FastAPI over Flask. Time constraints prevented me from successfully getting this out the door.
