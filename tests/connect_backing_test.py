@@ -2,7 +2,6 @@ import redis
 from src import app
 import pytest
 import argparse
-import logging
 
 @pytest.mark.parametrize("host, port, pw, exception_type", [ #maybe test using caplog instead of exception
     ("127.0.0.1", "6379", "rescale", None),

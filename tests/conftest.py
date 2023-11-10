@@ -2,7 +2,6 @@ import pytest
 import argparse
 import redis
 import sys
-import logging
 from src import app
 
 #sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
@@ -25,7 +24,6 @@ def mock_cached_data():
 @pytest.fixture
 def mock_redis(mocker):
     def mock_redis_get(key):
-        logging.info('test')
         if key == 'redis_key':
             return b'Redis Data'
         else:

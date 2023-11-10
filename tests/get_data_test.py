@@ -2,8 +2,6 @@ from src import app
 import pytest
 import logging
 
-
-
 def test_get_data_from_redis(setup, mock_redis): 
     key = 'redis_key'
     application = setup
