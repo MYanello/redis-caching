@@ -92,10 +92,11 @@ class redis_proxy:
         logging.debug(f"Created cache with TTL {self.args.ttl} and size {self.args.size}")
         return(self.cached_data)
     
-    async def launch_server(self):
-        config = uvicorn.config(self.app, host=self.args.proxy_host, port=self.args.proxy_port)
-        server = uvicorn.Server(config=config)
-        await server.serve()
+    def launch_server(self):
+        uvicorn.run(self.app, host=self.args.proxy_host, port=self.args.proxy_port)
+        # config = uvicorn.config(self.app, host=self.args.proxy_host, port=self.args.proxy_port)
+        # server = uvicorn.Server(config=config)
+        # await server.serve()
 
     def clean(self):
         #empty redis and cache, use with caution

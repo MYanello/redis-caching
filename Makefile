@@ -11,7 +11,6 @@ install: venv-install
 
 test: install docker-up
 	. venv/bin/activate; PYTHONPATH=. pytest
-	#. venv/bin/activate; python3 $(PYTHON_PROGRAM) --password 'rescale'; PYTHONPATH=. pytest
 docker-down:
 	docker compose down
 
