@@ -14,7 +14,6 @@ import logging
 
 def test_connect_backing(host, port, pw, exception_type):
     args = argparse.Namespace(redis_host = host, redis_port = port, password = pw, size = 10, ttl = 10)
-    #application = app.redis_proxy(args)
     if exception_type is None:
         try:
             application = app.redis_proxy(args)
