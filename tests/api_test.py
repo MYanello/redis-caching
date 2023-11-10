@@ -15,15 +15,16 @@ def server():
     application.redis_data_gen(10)
     proc = Process(target=application.launch_server, args=(), daemon=True)
     proc.start()
-    time.sleep(1)
+    time.sleep(1) #give a second to bring up the server before yielding
     yield 
     proc.kill()
     application.clean()
 
 def test_api(server):
-    response = requests.get('http://localhost:9999/get_data?key=5')
-    assert response.json()['data'] == "25"
-    assert response.json()['source'] == "redis"
-    response2 = requests.get('http://localhost:9999/get_data?key=5')
-    assert response2.json()['data'] == "25"
-    assert response2.json()['source'] == "cache"
+    assert_get_data(5, "25", "redis")
+    assert_get_data(5, "25", "cache")
+
+def assert_get_data(key, expected_data, expected_source):
+    response = requests.get(f'http://localhost:9999/get_data?key={key}')
+    assert response.json()['data'] == expected_data
+    assert response.json()['source'] == expected_source
