@@ -20,9 +20,3 @@ def test_api():
     response = requests.get('http://localhost:9999/get_data?key=1')
     assert response['data'] == 1
     application.clean()
-
-
-
-'''To join the video meeting, click this link: https://meet.google.com/ozz-mpan-kjm
-Otherwise, to join by phone, dial +1 585-491-9371 and enter this PIN: 169 613 442#
-To view more phone numbers, click this link: https://tel.meet/ozz-mpan-kjm?hs=5'''
