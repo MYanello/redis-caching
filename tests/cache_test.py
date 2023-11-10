@@ -6,30 +6,24 @@ import time
 import cachetools
 import logging
 
-@pytest.fixture
-def mock_redis(mocker):
-    def mock_redis_get(key):
-        if key == 'redis_key':
-            return b'Redis Data'
-        else:
-            return None
-    mocker.patch.object(app.redis.Redis, 'get', side_effect=mock_redis_get)
-
-
-def test_ttl(mock_redis, standard_args): #ensure key values are getting removed after ttl is up
-    app.connect_backing(standard_args)
-    size = 5
-    ttl = 1
+def test_ttl(setup, mock_redis): #ensure key values are getting removed after ttl is up
+    application = setup
     key = 'redis_key'
-    app.cache_setup(size, ttl)
-    #app.redis_data_gen(r, size)
-    first_pull= app.get_data(key)
+    first_pull= application.get_data(key)
     logging.info(first_pull)
-    second_pull = app.get_data(key) #second time to verify we pull value from cache
+    second_pull = application.get_data(key) #second time to verify we pull value from cache
     logging.info(second_pull)
-    time.sleep(ttl+1)
-    third_pull = app.get_data(key) #third time to verify the value is no longer pulled from cache
+    time.sleep(1)
+    third_pull = application.get_data(key) #third time to verify the value is no longer pulled from cache
     assert third_pull['source'] == 'redis'
     assert second_pull['source'] == 'cache'
     assert first_pull['source'] == 'redis'
-#def test_size():
+
+def test_size():
+    args = argparse.Namespace(redis_host = '127.0.0.1', redis_port = '6379', password = 'rescale', size = 1, ttl = 100)
+    application = app.redis_proxy(args)
+    application.redis_data_gen(10)
+    assert application.get_data(1)['source'] == 'redis'
+    assert application.get_data(1)['source'] == 'cache' # make sure first pull is cached
+    assert application.get_data(2)['source'] == 'redis' # make sure second pull is not cached
+    assert application.get_data(1)['source'] == 'redis' # make sure first pull is removed from the cache by second pull
