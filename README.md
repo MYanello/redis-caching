@@ -1,9 +1,23 @@
 # Architecture
-We use Docker to supply a redis backing instance for testing. This is defined using Docker Compose v2 (`docker compose` and not `docker-compose`).  
-For the actual caching proxy we use a Python Flask app to provide the HTTP endpoint, and the package cachetools to give the TTL and LRU capability.  
+This program is centered around the redis_proxy class. We take command line arguments to define the behavior of the proxy and the backing instance of Redis. The class supplies some basic functionality:
+- Initialization sets up the cache, connects to Redis, and initializes FastAPI with its routes.
+- Get_data provides cache retrieval of keys if possible, and Redis retrieval if not.  
+- Miscellaneous other methods useful for testing the class.
+- Cachetools provides the LRU and TTL functionality.
+- FastAPI to respond to API calls
+- Uvicorn webserver
 
-# Big O
+For testing we implement the following tools:
+- Docker supplies a redis backing instance for testing. This is defined using Docker Compose v2 (`docker compose` and not `docker-compose`).  
+- Pytest and Pytest-mock libraries for writing fixtures and tests
 
+# Time Complexity
+Get from Redis - O(1), Redis dictionary lookups are also constant time  
+Get from cache - O(1), Python dictionary lookups are constant time  
+Add to cache - 0(1), Python dictionary appends in constant time  
+Delete from cache (ttl) - O(1), this uses pop, constant time  
+Delete from cache (size) - O(1), this uses del, constant time  
+[Source for cachetools implementation](https://cachetools.readthedocs.io/en/latest/#cache-implementations)
 # How to run the proxy and tests
 To run the tests, you simply should run 
 ```
@@ -12,7 +26,7 @@ make test
 Otherwise for actual use, run: 
 ```
 make install 
-python app.py <args>
+python src/app.py <args>
 ```
 With optional arguments being:  
 --redis_host  
@@ -37,15 +51,19 @@ normal Python Dict, but in searching around for implementing the TTL and RLU fea
 a easy to use way. From there I just set a low TTL to make sure the cache was clearing, and a loop to ensure the cache capacity was being respected. This was
 about 3 hours of work.
 ## Makefile
-This part I had the most unfamiliarity with so was expecting the most amount of time. However, this was surprisingly simple to implement. I just needed it to
+This part I had the most unfamiliarity with so was expecting a significant amount of time. However, this was surprisingly simple to implement. I just needed it to
 provide:
 1. Launch the container
 2. Set up the venv
 3. Install Python packages
 4. Launch pytest
 5. Provide a way to launch the flask app normally
-
 ## Tests
-This was by far the most time spent on the project. I learnt Pytest and Pytest-mock for this testing. Some sources that I found useful:  
-- [Mocking](https://medium.com/@manuktiwary/mocking-in-pytest-910cbef5a4a9)
+This was by far the most time spent on the project. I learnt Pytest and Pytest-mock for this testing. I also refactored the app.py to be a class instead of just a big function so that it was easier to test. I would say this was about 8 hours of work to successfully implement all of the tests.  
+Another part of testing that took a fair bit of time to implement was the end-to-end test for the API. The issue I found was that the uvicorn server was blocking. To fix this I had to learn how to run the web server as a separate process.
 # Requirements
+All of the mandatory requirements were implemented successfully. 
+## Redis Serialization Protocol
+This was toyed with a bit in the aioredis branch, but was scrapped in favor of spending more time writing tests.
+## Concurrency
+This was intended to be implemented initially, hence the choice of FastAPI over Flask. Time constraints prevented me from successfully getting this out the door though.
