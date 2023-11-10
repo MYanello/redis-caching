@@ -12,7 +12,7 @@ import json
 def server():
     args = argparse.Namespace(proxy_host = '0.0.0.0', proxy_port = '9999', redis_host = '127.0.0.1', redis_port = '6379', password = 'rescale', size = 100, ttl = 100)
     application = app.redis_proxy(args)
-    application.redis_data_gen(1000)
+    application.redis_data_gen(10)
     proc = Process(target=application.launch_server, args=(), daemon=True)
     proc.start()
     time.sleep(1)
@@ -21,5 +21,5 @@ def server():
     application.clean()
 
 def test_api(server):
-    response = requests.get('http://localhost:9999/get_data?key=1')
-    assert response.json()['data'] == "1"
+    response = requests.get('http://localhost:9999/get_data?key=5')
+    assert response.json()['data'] == "25"
