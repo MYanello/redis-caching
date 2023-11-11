@@ -5,10 +5,10 @@ venv-install:
 	python3 -m venv venv
 	. venv/bin/activate; pip install -r requirements.txt
 
-local-test: redis-up venv-install
+test-local: redis-up venv-install
 	. venv/bin/activate; PYTHONPATH=. pytest
 
-local-run: redis-up venv-install
+run-local: redis-up venv-install
 	. venv/bin/activate; python src/app.py --password='rescale'
 
 test: 
