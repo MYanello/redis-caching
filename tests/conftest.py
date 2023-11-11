@@ -3,6 +3,7 @@ import argparse
 import redis
 import sys
 from src import app
+import logging
 
 #sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 sys.path.append("../src")
@@ -29,3 +30,13 @@ def mock_redis(mocker):
         else:
             return None
     mocker.patch('redis.Redis.get', side_effect=mock_redis_get)
+
+@pytest.fixture
+def mock_aioredis(mocker):
+    def mock_aioredis_get(key):
+        logging.debug(f"mock_aioredis_get: {key}")
+        if key == 'redis_key':
+            return b'Redis Data'
+        else:
+            return None
+    mocker.patch('aioredis.Redis.get', side_effect=mock_aioredis_get)

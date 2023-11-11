@@ -9,6 +9,7 @@ This program is centered around the redis_proxy class. We take command line argu
 
 For testing we implement the following tools:
 - Docker supplies a redis backing instance for testing. This is defined using Docker Compose v2 (`docker compose` and not `docker-compose`).  
+- A container is made that is defined as two different services in the Compose file. Once for testing, and once for production usage.
 - Pytest and Pytest-mock libraries for writing fixtures and tests
 
 # Time Complexity
@@ -68,4 +69,4 @@ All of the mandatory requirements were implemented successfully.
 ## Redis Serialization Protocol
 This was toyed with a bit in the aioredis branch, but was scrapped in favor of spending more time writing tests and trying to implement the concurrency.
 ## Concurrency
-This was intended to be implemented initially, hence the choice of FastAPI over Flask. Time constraints prevented me from successfully getting this out the door.
+This was intended to be implemented initially, hence the choice of FastAPI/Starlette over Flask. Time constraints prevented me from successfully getting this out the door.
