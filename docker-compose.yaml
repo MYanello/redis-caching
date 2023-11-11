@@ -1,5 +1,6 @@
 version: '3.9'
 services:
+
   redis:
     container_name: redis
     image: redis:latest
@@ -7,3 +8,16 @@ services:
     ports:
     - 6379:6379
     restart: always
+
+  cache:
+    container_name: cache
+    image: marcusjy/redis_proxy_cache:latest
+    network_mode: host
+
+  cache_test:
+    container_name: cache_test
+    image: marcusjy/redis_proxy_cache:latest
+    network_mode: host
+    command: ["-m pytest"]
+    depends_on:
+      - redis
