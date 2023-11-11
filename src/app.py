@@ -40,9 +40,8 @@ class redis_proxy:
         if key in self.cached_data:
             return ({'key': key, 'data': self.cached_data[key].decode('utf-8'), 'source': 'cache'})
         try:
-            logging.info('redis get')
             redis_value = self.r.get(key)
-            logging.info(self.r)
+            logging.debug(self.r)
             self.cached_data[key] = redis_value
             return ({'key': key, 'data':redis_value.decode('utf-8'), 'source': 'redis'})
         except Exception as e:
@@ -56,7 +55,6 @@ class redis_proxy:
         if key in self.cached_data:
             return ({'key': key, 'data': self.cached_data[key].decode('utf-8'), 'source': 'cache'})
         try:
-            logging.info('redis get')
             redis_value = await self.r.get(key)
             if redis_value is not None:
                 redis_value = redis_value.decode('utf-8')
@@ -70,7 +68,7 @@ class redis_proxy:
         #generate test data in redis
         for i in range(size):
             self.r.set(i, i**2)
-        logging.info("Added test data to Redis instance")
+        logging.debug("Added test data to Redis instance")
 
     def connect_backing(self) -> redis.Redis: 
         #connect to the backing redis instance
