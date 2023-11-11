@@ -11,7 +11,7 @@ sys.path.append("../src")
 @pytest.fixture
 def setup():
     args = argparse.Namespace(redis_host = '127.0.0.1', redis_port = '6379', password = 'rescale', size = 1, ttl = 1)
-    application = app.redis_proxy(args)
+    application = app.RedisProxy(args)
     yield application
     application.clean()
 
@@ -30,13 +30,3 @@ def mock_redis(mocker):
         else:
             return None
     mocker.patch('redis.Redis.get', side_effect=mock_redis_get)
-
-@pytest.fixture
-def mock_aioredis(mocker):
-    def mock_aioredis_get(key):
-        logging.debug(f"mock_aioredis_get: {key}")
-        if key == 'redis_key':
-            return b'Redis Data'
-        else:
-            return None
-    mocker.patch('aioredis.Redis.get', side_effect=mock_aioredis_get)

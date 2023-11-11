@@ -7,7 +7,8 @@ import logging
 import time
 import aioredis
 
-logging.basicConfig(level=logging.INFO)
+
+logging.basicConfig(level=logging.DEBUG)
 parser = argparse.ArgumentParser(description='Redis caching proxy')
 parser.add_argument('--redis_host', type=str, help='Hostname or IP of backing Redis', default='127.0.0.1')
 parser.add_argument('--redis_port', type=str, help='Port of backing Redis', default='6379')
@@ -17,12 +18,12 @@ parser.add_argument('-t', '--ttl', type=int, help='Cache TTL in seconds', defaul
 parser.add_argument('-k', '--size', type=int, help='Number of items to cache', default=10)
 parser.add_argument('--password', type=str, nargs='?')
 
-class redis_proxy:
+class RedisProxy:
     def __init__(self, args):
         self.args = args
         self.cached_data = self.cache_setup()
         self.r = self.connect_backing()
-        self.aior = self.connect_aioredis()
+        self.pool = self.aioredis_pool()
         self.app = FastAPI()
         @self.app.get('/get_data')(self.get_data)
         @self.app.get('/get_data_async')(self.async_get_data)
@@ -33,12 +34,8 @@ class redis_proxy:
             response = await call_next(request)
             process_time = time.time() - start_time
             response.headers["X-Process-Time"] = str(f"{process_time:0.4f} sec")
-            return(response)
+            return response
         
-    # async def get_data(self, key): 
-    #     result = await self.async_get_data(key)
-    #     return(result)
-
     def get_data(self, key) -> dict: 
         #pull data from redis or cache if possible
         if not key:
@@ -61,32 +58,32 @@ class redis_proxy:
         if key in self.cached_data:
             return ({'key': key, 'data': self.cached_data[key].decode('utf-8'), 'source': 'cache'})
         try:
-            redis_value = await self.aior.execute('get','key')
-            if redis_value is not None:
-                redis_value = redis_value.decode('utf-8')
-                self.cached_data[key] = redis_value
-                return ({'key': key, 'data':redis_value, 'source': 'redis'})
+            async with self.pool.get_connection() as conn: #get a connection from the pool to run the command with
+                redis_value = await self.pool.execute(b'GET', key)
+                if redis_value is not None:
+                    redis_value = redis_value.decode('utf-8')
+                    self.cached_data[key] = redis_value
+                    return ({'key': key, 'data':redis_value, 'source': 'redis'})
         except Exception as e:
             logging.error(f"Error getting data: {e}")
             return ({'error': 'key not found'})
 
-    async def connect_aioredis(self):
+    async def aioredis_pool(self):
         #connect to the backing redis instance asynchronously
+        logging.debug('Creating pool from backing instance with AIORedis')
         try:
             if self.args.password:
-                self.aior = await aioredis.create_pool(self.args.redis_host, self.args.redis_port, password = self.args.password, create_connection_timoeout=1)
+                self.pool = await aioredis.create_pool((self.args.redis_host, self.args.redis_port), password = self.args.password, create_connection_timeout=1)
             else:
-                self.aior = await aioredis.create_pool(self.args.redis_host, self.args.redis_port, create_connection_timoeout=1)
-            self.aior.ping()
-            logging.info('Connected to backing instance with AIORedis')
+                self.pool = await aioredis.create_pool((self.args.redis_host, self.args.redis_port), create_connection_timeout=1)
+            logging.debug('Created pool from backing instance with AIORedis')
         except aioredis.exceptions.AuthenticationError as e: 
             logging.critical(f"Redis password error: {e}")
-            raise
         except (aioredis.exceptions.ConnectionError, aioredis.exceptions.TimeoutError) as e:
             logging.critical(f"Redis connection error: {e}")
-            raise
-        logging.debug('Connect backing')
-        return(self.aior)
+        logging.debug(self.pool)
+        return self.pool
+    
     
     def connect_backing(self) -> redis.Redis: 
         #connect to the backing redis instance
@@ -96,14 +93,14 @@ class redis_proxy:
             else:
                 self.r = redis.Redis(host=self.args.redis_host, port=self.args.redis_port, db=0, socket_timeout=1)
             self.r.ping()
+            logging.info('Connected to backing instance with Redis')
         except redis.exceptions.AuthenticationError as e: 
             logging.critical(f"Redis password error: {e}")
             raise
         except (redis.exceptions.ConnectionError, redis.exceptions.TimeoutError) as e:
             logging.critical(f"Redis connection error: {e}")
             raise
-        logging.debug('Connect backing')
-        return(self.r)
+        return self.r
 
 
     def cache_setup(self):
@@ -114,7 +111,7 @@ class redis_proxy:
     
     def launch_server(self):
         #launch redis proxy server
-        uvicorn.run(self.app, host=self.args.proxy_host, port=self.args.proxy_port)
+        uvicorn.run(self.app, host=self.args.proxy_host, port=int(self.args.proxy_port))
 
     def clean(self):
         #empty redis and cache, use with caution
@@ -133,6 +130,6 @@ class redis_proxy:
 
 if __name__ == '__main__':
     args = parser.parse_args()
-    app = redis_proxy(args)
+    app = RedisProxy(args)
     app.redis_data_gen(100)
     app.launch_server()

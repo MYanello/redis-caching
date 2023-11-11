@@ -15,10 +15,10 @@ def test_connect_backing(host, port, pw, exception_type):
     args = argparse.Namespace(redis_host = host, redis_port = port, password = pw, size = 10, ttl = 10)
     if exception_type is None:
         try:
-            application = app.redis_proxy(args)
+            application = app.RedisProxy(args)
         except Exception as e:
             pytest.fail(f"Unexpected exception raised: {e}")
     else:
         with pytest.raises(exception_type):
-            application = app.redis_proxy(args)
+            application = app.RedisProxy(args)
 

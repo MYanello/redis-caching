@@ -1,5 +1,5 @@
 # Architecture
-This program is centered around the redis_proxy class. We take command line arguments to define the behavior of the proxy and the backing instance of Redis. The class supplies some basic functionality:
+This program is centered around the RedisProxy class. We take command line arguments to define the behavior of the proxy and the backing instance of Redis. The class supplies some basic functionality:
 - Initialization sets up the cache, connects to Redis, and initializes FastAPI with its routes.
 - Get_data provides cache retrieval of keys if possible, and Redis retrieval if not.  
 - Cachetools provides the LRU and TTL functionality.
