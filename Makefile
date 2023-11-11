@@ -1,24 +1,26 @@
-PYTHON_PROGRAM = src/app.py
-
 redis-up:
 	docker compose up -d redis
 
-venv:
+venv-install:
 	python3 -m venv venv
-
-install: venv
 	. venv/bin/activate; pip install -r requirements.txt
 
-test: install redis-up
+local-test: redis-up venv-install
 	. venv/bin/activate; PYTHONPATH=. pytest
 
-redis-down:
-	docker compose down
+local-run: redis-up venv-install
+	. venv/bin/activate; python src/app.py --password='rescale'
 
-run-proxy: install
-	docker run --network=host marcusjy/redis_proxy_cache src/app.py
+test: 
+	docker compose up cache_test
+
+docker-down:
+	docker compose down
 
 clean-venv:
 	rm -rf venv
 
-clean: clean-venv redis-down
+run-proxy:
+	docker run --network=host marcusjy/redis_proxy_cache:latest src/app.py --password='rescale'
+
+clean: clean-venv docker-down

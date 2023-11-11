@@ -106,5 +106,5 @@ class redis_proxy:
 if __name__ == '__main__':
     args = parser.parse_args()
     app = redis_proxy(args)
-    app.redis_data_gen(100)
+    #app.redis_data_gen(100)
     app.launch_server()
