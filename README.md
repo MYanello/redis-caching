@@ -8,8 +8,9 @@ This program is centered around the redis_proxy class. We take command line argu
 - Miscellaneous other methods useful for testing the class.
 
 For testing we implement the following tools:
-- Docker supplies a redis backing instance for testing. This is defined using Docker Compose v2 (`docker compose` and not `docker-compose`).  
-- Pytest and Pytest-mock libraries for writing fixtures and tests
+- Docker supplies a Redis backing instance for testing. This is defined using Docker Compose v2 (`docker compose` and not `docker-compose`).  
+- The program is fully defined within Docker so that no Python installation is necessary for testing or usage.  
+- Pytest and Pytest-mock libraries are used for writing fixtures and tests  
 
 # Time Complexity
 Get from Redis - O(1), Redis dictionary lookups are in constant time  
@@ -20,16 +21,15 @@ Delete from cache (size) - O(1), this uses pop, constant time
 [Source for Cachetools implementation](https://cachetools.readthedocs.io/en/latest/#cache-implementations)  
 [Source for Python ops speed](https://www.geeksforgeeks.org/complexity-cheat-sheet-for-python-operations/#)
 # How to run the proxy and tests
-To run the tests, simply run 
+To run the tests using Docker, simply run 
 ```
 make test
 ```
-Otherwise for actual usage, run: 
+Otherwise for actual usage, modify the command with your arguments in the Compose file then run: 
 ```
-make install 
-source venv/bin/activate
-python src/app.py <args>
+docker compose up -d cache
 ```
+
 With optional arguments being:  
 --redis_host  
 --redis_port  
@@ -68,4 +68,4 @@ All of the mandatory requirements were implemented successfully.
 ## Redis Serialization Protocol
 This was toyed with a bit in the aioredis branch, but was scrapped in favor of spending more time writing tests and trying to implement the concurrency.
 ## Concurrency
-This was intended to be implemented initially, hence the choice of FastAPI over Flask. Time constraints prevented me from successfully getting this out the door.
+This was intended to be implemented initially, hence the choice of FastAPI over Flask. Time constraints prevented me from successfully getting this out the door. You can review the attempt in the conc_fastapi branch if you'd like.
