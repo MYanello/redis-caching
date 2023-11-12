@@ -22,8 +22,9 @@ class redis_proxy:
         self.cached_data = self.cache_setup()
         self.r = self.connect_backing()
         self.app = FastAPI()
-        @self.app.get('/get_data')(self.get_data)
-        @self.app.middleware("http") 
+        self.setup_routes()
+        #@self.app.add_api_route('/get_data',self.get_data, methods=['GET'])
+        @self.app.middleware("http")
         async def add_process_time_header(request, call_next):
             #track api call speed
             start_time = time.time()
@@ -31,7 +32,11 @@ class redis_proxy:
             process_time = time.time() - start_time
             response.headers["X-Process-Time"] = str(f"{process_time:0.4f} sec")
             return(response)
-        
+
+    def setup_routes(self):
+        #setup routes for the API
+        self.app.add_api_route('/get_data',self.get_data, methods=['GET'])
+
     def get_data(self, key) -> dict: 
         #pull data from redis or cache if possible
         if not key:
@@ -90,4 +95,5 @@ class redis_proxy:
 if __name__ == '__main__':
     args = parser.parse_args()
     app = redis_proxy(args)
+    app.redis_data_gen(10)
     app.launch_server()
