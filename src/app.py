@@ -6,7 +6,7 @@ import argparse
 import logging
 import time
 
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=logging.DEBUG)
 parser = argparse.ArgumentParser(description='Redis caching proxy')
 parser.add_argument('--redis_host', type=str, help='Hostname or IP of backing Redis', default='127.0.0.1')
 parser.add_argument('--redis_port', type=str, help='Port of backing Redis', default='6379')
@@ -23,7 +23,6 @@ class redis_proxy:
         self.r = self.connect_backing()
         self.app = FastAPI()
         @self.app.get('/get_data')(self.get_data)
-
         @self.app.middleware("http") 
         async def add_process_time_header(request, call_next):
             #track api call speed
@@ -38,28 +37,13 @@ class redis_proxy:
         if not key:
             return ({'error': 'no key parameter'})
         if key in self.cached_data:
+            logging.debug("Got data from cache")
             return ({'key': key, 'data': self.cached_data[key].decode('utf-8'), 'source': 'cache'})
         try:
             redis_value = self.r.get(key)
-            logging.debug(self.r)
+            logging.debug("Got data from Redis")
             self.cached_data[key] = redis_value
             return ({'key': key, 'data':redis_value.decode('utf-8'), 'source': 'redis'})
-        except Exception as e:
-            logging.error(f"Error getting data from Redis: {e}")
-            return ({'error': 'key not found'})
-
-    async def async_get_data(self, key) -> dict: 
-        #pull data from redis or cache if possible asynchronously
-        if not key:
-            return ({'error': 'no key parameter'})
-        if key in self.cached_data:
-            return ({'key': key, 'data': self.cached_data[key].decode('utf-8'), 'source': 'cache'})
-        try:
-            redis_value = await self.r.get(key)
-            if redis_value is not None:
-                redis_value = redis_value.decode('utf-8')
-                self.cached_data[key] = redis_value
-                return ({'key': key, 'data':redis_value.decode('utf-8'), 'source': 'redis'})
         except Exception as e:
             logging.error(f"Error getting data from Redis: {e}")
             return ({'error': 'key not found'})
@@ -92,7 +76,7 @@ class redis_proxy:
     
     def launch_server(self):
         #launch redis proxy server
-        uvicorn.run(self.app, host=self.args.proxy_host, port=self.args.proxy_port)
+        uvicorn.run(self.app, host=self.args.proxy_host, port=int(self.args.proxy_port))
 
     def clean(self):
         #empty redis and cache, use with caution
@@ -106,5 +90,4 @@ class redis_proxy:
 if __name__ == '__main__':
     args = parser.parse_args()
     app = redis_proxy(args)
-    #app.redis_data_gen(100)
     app.launch_server()

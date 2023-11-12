@@ -2,9 +2,7 @@ from multiprocessing import Process
 from src import app
 import pytest
 import argparse
-import logging
 import requests
-import uvicorn
 import time
 import json
 
@@ -20,7 +18,7 @@ def server():
     proc.kill()
     application.clean()
 
-def test_api(server):
+def test_api(server): #don't pytest.mark.parametrize because we want to start the server only once to test the cacheing
     assert_get_data(5, "25", "redis")
     assert_get_data(5, "25", "cache")
 

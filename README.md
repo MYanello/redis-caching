@@ -33,11 +33,11 @@ docker compose up -d cache
 With optional arguments being:  
 --redis_host  
 --redis_port  
---ttl time to cache items  
---k max cache size  
+--password (for backing Redis)  
+--ttl (time to cache items)  
+--k (max cache size)  
 --proxy_host  
 --proxy_port  
---password  
 # Time spent
 ## Redis Backing Instance
 This took a minimal amount of time, <1 hour. I have no experience with Redis so a lot of the time was spent deciding between RedisStack, and Redis.

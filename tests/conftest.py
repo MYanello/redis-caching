@@ -1,6 +1,5 @@
 import pytest
 import argparse
-import redis
 import sys
 from src import app
 
