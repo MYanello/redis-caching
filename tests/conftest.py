@@ -1,10 +1,6 @@
 import pytest
 import argparse
-import sys
 from src import app
-
-#sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
-sys.path.append("../src")
 
 @pytest.fixture
 def setup():

@@ -1,18 +1,16 @@
-import redis
 from src import app
 import pytest
 import argparse
 import time
-import cachetools
 import logging
 
 def test_ttl(setup, mock_redis): #ensure key values are getting removed after ttl is up
     application = setup
     key = 'redis_key'
     first_pull= application.get_data(key)
-    logging.info(first_pull)
+    logging.debug(first_pull)
     second_pull = application.get_data(key) #second time to verify we pull value from cache
-    logging.info(second_pull)
+    logging.debug(second_pull)
     time.sleep(1)
     third_pull = application.get_data(key) #third time to verify the value is no longer pulled from cache
     assert third_pull['source'] == 'redis'

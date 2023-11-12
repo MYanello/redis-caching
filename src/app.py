@@ -6,7 +6,7 @@ import argparse
 import logging
 import time
 
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.WARNING)
 parser = argparse.ArgumentParser(description='Redis caching proxy')
 parser.add_argument('--redis_host', type=str, help='Hostname or IP of backing Redis', default='127.0.0.1')
 parser.add_argument('--redis_port', type=str, help='Port of backing Redis', default='6379')
