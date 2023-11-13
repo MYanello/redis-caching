@@ -17,7 +17,7 @@ def test_ttl(setup, mock_redis): #ensure key values are getting removed after tt
     assert second_pull['source'] == 'cache'
     assert first_pull['source'] == 'redis'
 
-def test_size():
+def test_size(): #make sure that the cache is clearing when filled
     args = argparse.Namespace(redis_host = '127.0.0.1', redis_port = '6379', password = 'rescale', size = 1, ttl = 100)
     application = app.redis_proxy(args)
     application.redis_data_gen(10)

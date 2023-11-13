@@ -24,12 +24,12 @@ def test_api(server): #don't pytest.mark.parametrize because we want to start th
     assert_get_data(5, "25", "redis")
     assert_get_data(5, "25", "cache")
 
-def assert_get_data(key, expected_data, expected_source):
+def assert_get_data(key, expected_data, expected_source): #ensure the api is caching keys correctly
     response = requests.get(f'http://localhost:9999/get_data?key={key}')
     assert response.json()['data'] == expected_data
     assert response.json()['source'] == expected_source
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio #ensure we handle async requests correctly
 async def test_async_reqs(server):
     runs = 1000
     start_time = time.time()
