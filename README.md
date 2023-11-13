@@ -41,6 +41,7 @@ If you are running on Rescale with a BYOS tile, you will need to add the Docker 
 ```bash
 $ sudo yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
 $ sudo yum install docker-ce
+$ sudo systemctl start docker
 ```
 # Time spent
 ## Redis Backing Instance
