@@ -10,7 +10,7 @@ This program is centered around the redis_proxy class. We take command line argu
 For testing we implement the following tools:
 - Docker supplies a Redis backing instance for testing. This is defined using Docker Compose v2 (`docker compose` and not `docker-compose`).  
     Note: if you *must* use the older version of Docker Compose, you should modify the .yaml to use version 3.7 and modify the Makefile commands to have the hyphenated command
-- The program is fully defined within Docker so that no Python installation is necessary for testing or usage.  
+- The program is fully defined within Docker so that no Python installation is necessary for testing or usage. The container was made with the assumption that it would be using amd64 architecture, though it could likely be easily remade for arm if needed.  
 - Pytest and Pytest-mock libraries are used for writing fixtures and tests  
 
 # Time Complexity
