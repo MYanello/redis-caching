@@ -77,3 +77,5 @@ All of the mandatory requirements were implemented successfully.
 This was toyed with a bit in the aioredis branch, but was scrapped in favor of spending more time writing tests and trying to implement the concurrency.
 ## Concurrency
 This was intended to be implemented initially, hence the choice of FastAPI over Flask. Time constraints prevented me from successfully getting this out the door. You can review the attempt in the conc_fastapi branch if you'd like.
+### Update 12.8.23
+This was implemented successfully and passing all the tests. Way past the deadline, but good for learning. Major trick was to use asyncio.run() to run the coroutines in the tests.
