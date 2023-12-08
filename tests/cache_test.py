@@ -22,7 +22,7 @@ def test_size(): #make sure that the cache is clearing when filled
     args = argparse.Namespace(redis_host = '127.0.0.1', redis_port = '6379', password = 'rescale', size = 1, ttl = 100)
     application = app.redis_proxy(args)
     application.redis_data_gen(10)
-    assert application.get_data(1)['source'] == 'redis'
-    assert application.get_data(1)['source'] == 'cache' # make sure first pull is cached
-    assert application.get_data(2)['source'] == 'redis' # make sure second pull is not cached
-    assert application.get_data(1)['source'] == 'redis' # make sure first pull is removed from the cache by second pull
+    assert asyncio.run(application.get_data(1))['source'] == 'redis'
+    assert asyncio.run(application.get_data(1))['source'] == 'cache' # make sure first pull is cached
+    assert asyncio.run(application.get_data(2))['source'] == 'redis' # make sure second pull is not cached
+    assert asyncio.run(application.get_data(1))['source'] == 'redis' # make sure first pull is removed from the cache by second pull
