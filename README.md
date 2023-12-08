@@ -78,4 +78,4 @@ This was toyed with a bit in the aioredis branch, but was scrapped in favor of s
 ## Concurrency
 This was intended to be implemented initially, hence the choice of FastAPI over Flask. Time constraints prevented me from successfully getting this out the door. You can review the attempt in the conc_fastapi branch if you'd like.
 ### Update 12.8.23
-This was implemented successfully and passing all the tests. Way past the deadline, but good for learning. Major trick was to use asyncio.run() to run the coroutines in the tests.
+This was implemented successfully and passing all the tests. Way past the deadline, but good for learning. Major trick was to use asyncio.run() to run the coroutines in the tests. The async test did not speed up from when it was processed sequentially though. We may be bound by the speed of the test to push out requests, and not the speed of the api to respond to them.
