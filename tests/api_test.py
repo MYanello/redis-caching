@@ -6,7 +6,6 @@ import pytest
 import argparse
 import requests
 import time
-import json
 
 @pytest.fixture
 def server():
@@ -31,7 +30,7 @@ def assert_get_data(key, expected_data, expected_source): #ensure the api is cac
 
 @pytest.mark.asyncio #ensure we handle async requests correctly
 async def test_async_reqs(server):
-    runs = 1000
+    runs = 1000 # ~2 seconds to run this on my laptop
     start_time = time.time()
     async with aiohttp.ClientSession() as session:
         for i in range(runs):
@@ -45,7 +44,7 @@ async def test_async_reqs(server):
     logging.info(f"Time to run {runs} requests: {run_time:0.4f} seconds")
 
         
-def test_seq_reqs(server):
+def test_seq_reqs(server): # ~3 seconds to run on my laptop
     runs = 1000
     start_time = time.time()
     for i in range(runs):

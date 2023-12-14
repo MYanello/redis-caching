@@ -5,8 +5,9 @@ from cachetools import TTLCache
 import argparse
 import logging
 import time
+import asyncio
 
-logging.basicConfig(level=logging.WARNING)
+logging.basicConfig(level=logging.DEBUG)
 parser = argparse.ArgumentParser(description='Redis caching proxy')
 parser.add_argument('--redis_host', type=str, help='Hostname or IP of backing Redis', default='127.0.0.1')
 parser.add_argument('--redis_port', type=str, help='Port of backing Redis', default='6379')
@@ -37,7 +38,7 @@ class redis_proxy:
         #setup routes for the API
         self.app.add_api_route('/get_data',self.get_data, methods=['GET'])
 
-    def get_data(self, key) -> dict: 
+    async def get_data(self, key) -> dict: 
         #pull data from redis or cache if possible
         if not key:
             return ({'error': 'no key parameter'})
@@ -45,13 +46,21 @@ class redis_proxy:
             logging.debug("Got data from cache")
             return ({'key': key, 'data': self.cached_data[key].decode('utf-8'), 'source': 'cache'})
         try:
-            redis_value = self.r.get(key)
+            # redis_value = self.r.get(key) # this function will disable async functionality
+            redis_value = await self.get_data_from_redis(key)
+            logging.debug(redis_value)
             logging.debug("Got data from Redis")
             self.cached_data[key] = redis_value
             return ({'key': key, 'data':redis_value.decode('utf-8'), 'source': 'redis'})
         except Exception as e:
             logging.error(f"Error getting data from Redis: {e}")
             return ({'error': 'key not found'})
+
+    async def get_data_from_redis(self, key):
+        logging.debug("Getting data from Redis")
+        value = self.r.get(key)
+        logging.debug(value)
+        return value
 
     def redis_data_gen(self, size):
         #generate test data in redis
